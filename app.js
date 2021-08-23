@@ -1,9 +1,7 @@
-let colormode = 0;
+let colorMode = 1; // default is multicolor
+let storedColor = "black"
 
-function colorMode() {
-    if (colormode === 0) return getRandomColor() 
-}
-
+// Generate random color for multicolor mode
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '#';
@@ -13,15 +11,18 @@ function getRandomColor() {
     return color;
   }
 
+// Slider
+  var slider = document.getElementById("myRange");
+  var output = document.getElementById("demo");
+  
+  output.innerHTML = slider.value;
 
-var slider = document.getElementById("myRange");
-var output = document.getElementById("demo");
-
-output.innerHTML = slider.value;
-
+  // default, canvas size is 30 using multicolor mode
 let size = Number(slider.value)
 
 document.querySelector(".container").style.gridTemplateColumns = `repeat(${size}, 1fr)`
+document.querySelector(".multicolor").style.backgroundColor = "grey"
+
 for (let i = 0; i < size; i++){
     for (let j = 0; j < size; j++){
         let node = document.createElement("div");
@@ -32,6 +33,8 @@ for (let i = 0; i < size; i++){
     }
 }
 
+// Slider on input
+
 slider.addEventListener('input', function() {
     output.innerHTML = this.value;
     size = Number(slider.value)
@@ -41,52 +44,86 @@ slider.addEventListener('input', function() {
     newContainer.className = "container"
     document.querySelector(".canvas").appendChild(newContainer); 
     document.querySelector(".container").style.gridTemplateColumns = `repeat(${size}, 1fr)`
-    for (let i = 0; i < size; i++){
-    for (let j = 0; j < size; j++){
-        let node = document.createElement("div");
-        node.addEventListener("mouseover", function(event){
-            event.target.style.backgroundColor = getRandomColor()
-        })
-        document.querySelector(".container").appendChild(node);     
-    }
-}
-  }, false)
-
-  let onoff = 0;
-
-  function erase() {
-    if (onoff === 0){
-        onoff = 1;
-        document.querySelector(".erase").style.backgroundColor = "grey"
+    if (colorMode === 1){
         for (let i = 0; i < size; i++){
             for (let j = 0; j < size; j++){
-                document.querySelector(".container").addEventListener("mouseover", function(event){
-                    event.target.style.backgroundColor = "white"
+                let node = document.createElement("div");
+                node.addEventListener("mouseover", function(event){
+                    event.target.style.backgroundColor = getRandomColor()
                 })
+                document.querySelector(".container").appendChild(node);     
             }
         }
     } else {
-        onoff = 0;
-        document.querySelector(".erase").style.backgroundColor = "white"
         for (let i = 0; i < size; i++){
             for (let j = 0; j < size; j++){
-                document.querySelector(".container").addEventListener("mouseover", function(event){
-                    event.target.style.backgroundColor = getRandomColor()
+                let node = document.createElement("div");
+                node.addEventListener("mouseover", function(event){
+                    event.target.style.backgroundColor = storedColor;
                 })
+                document.querySelector(".container").appendChild(node);     
             }
+        }
+    }
+    
+  }, false)
+
+  // Eraser
+
+  let onoffErase = 0;
+
+  function erase() {
+    if (onoffErase === 0){
+        onoffErase = 1;
+        document.querySelector(".erase").style.backgroundColor = "grey"
+        document.querySelector(".container").addEventListener("mouseover", function(event){
+            event.target.style.backgroundColor = "white";
+        })
+    } else {
+        onoffErase = 0;
+        document.querySelector(".erase").style.backgroundColor = "white"
+        if (colorMode === 0){
+            document.querySelector(".container").addEventListener("mouseover", function(event){
+                event.target.style.backgroundColor = storedColor;
+            })   
+        } else {
+            document.querySelector(".container").addEventListener("mouseover", function(event){
+                event.target.style.backgroundColor = getRandomColor();
+            })
         }
     }
 }
 
-colorPicker.addEventListener("input", updateFirst, false);
-colorPicker.addEventListener("change", watchColorPicker, false);
+// Unicolor mode
 
-function watchColorPicker(event) {
-  document.querySelectorAll("p").forEach(function(p) {
-    p.style.color = event.target.value;
-  });
+document.querySelector("#colorPicker").addEventListener("input", uniColor, false);
+
+
+function uniColor(e) {
+    colorMode = 0
+    storedColor = e.target.value
+
+    document.querySelector(".multicolor").style.backgroundColor = "white"
+    document.querySelector("#colorPicker").style.backgroundColor = "grey";
+    
+    document.querySelector(".container").addEventListener("mouseover", function(event){
+        event.target.style.backgroundColor = e.target.value
+    })
+     
 }
 
-function clear() {
-    
+// Multicolor mode
+
+function multiColor() {
+    colorMode = 1
+    document.querySelector(".multicolor").style.backgroundColor = "grey"
+    document.querySelector("#colorPicker").style.backgroundColor = "white";
+    document.querySelector(".container").addEventListener("mouseover", function(event){
+        event.target.style.backgroundColor = getRandomColor()
+    })        
+}
+
+// Clear canvas
+function clearance() {
+    document.querySelector(".container").childNodes.forEach(pixel => pixel.style.backgroundColor = "white")
 }
